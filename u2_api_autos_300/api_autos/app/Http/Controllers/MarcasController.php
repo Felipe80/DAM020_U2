@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marca;
+use App\Http\Requests\MarcasRequest;
 use Illuminate\Http\Request;
 
 class MarcasController extends Controller
@@ -23,11 +24,12 @@ class MarcasController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(MarcasRequest $request)
     {
         $marca = new Marca();
         $marca->nombre = $request->nombre;
         $marca->save();
+        return $marca;
     }
 
     /**

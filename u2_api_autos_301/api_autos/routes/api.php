@@ -19,8 +19,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/marcas',[MarcasController::class,'index']);
-Route::get('/marcas/{marca}',[MarcasController::class,'show']);
-Route::post('/marcas',[MarcasController::class,'store']);
-Route::put('/marcas/{marca}',[MarcasController::class,'update']);
-Route::delete('/marcas/{marca}',[MarcasController::class,'destroy']);
+// Route::get('/marcas',[MarcasController::class,'index']);
+// Route::get('/marcas/{marca}',[MarcasController::class,'show']);
+// Route::post('/marcas',[MarcasController::class,'store']);
+// Route::delete('/marcas/{marca}',[MarcasController::class,'destroy']);
+// Route::patch('/marcas/{marca}',[MarcasController::class,'update']);
+
+Route::apiResource('/marcas',MarcasController::class);
