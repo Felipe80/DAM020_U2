@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:u2_dpa_300/provider/dpa_provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -85,32 +86,30 @@ class _HomePageState extends State<HomePage> {
             ),
 
             //COMUNA
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: FutureBuilder(
-                future: provider.getComunas(region, provincia),
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    return Text('Cargando Comunas...');
-                  }
-                  return DropdownButton<String>(
-                    value: comuna.isEmpty ? null : comuna,
-                    isExpanded: true,
-                    hint: Text('Comuna'),
-                    items:
-                        snapshot.data.map<DropdownMenuItem<String>>((comuna) {
-                      return DropdownMenuItem<String>(
-                        child: Text(comuna['nombre']),
-                        value: comuna['codigo'],
-                      );
-                    }).toList(),
-                    onChanged: (nuevaComuna) {
-                      setState(() {
-                        comuna = nuevaComuna.toString();
-                      });
-                    },
-                  );
-                },
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: FutureBuilder(
+                  future: provider.getComunas(region, provincia),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text('Cargando Comunas...');
+                    }
+                    return ListView.separated(
+                      separatorBuilder: (_, __) => Divider(),
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) {
+                        if (!snapshot.hasData) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        return ListTile(
+                          leading: Icon(MdiIcons.homeCityOutline),
+                          title: Text(snapshot.data[index]['nombre']),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],
