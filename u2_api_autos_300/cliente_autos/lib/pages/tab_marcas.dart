@@ -1,6 +1,8 @@
 import 'package:cliente_autos/pages/marcas_agregar.dart';
+import 'package:cliente_autos/pages/marcas_editar.dart';
 import 'package:cliente_autos/provider/autos_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class TabMarcas extends StatefulWidget {
@@ -32,66 +34,57 @@ class _TabMarcasState extends State<TabMarcas> {
                   separatorBuilder: (_, __) => Divider(),
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
-                    return Dismissible(
-                      direction: DismissDirection.endToStart,
-                      key: ObjectKey(snapshot.data[index]),
-                      background: Container(
-                        color: Colors.purple,
-                      ),
-                      secondaryBackground: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        alignment: Alignment.centerRight,
-                        color: Colors.red,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Borrar',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Icon(
-                              MdiIcons.trashCan,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
+                    return Slidable(
                       child: ListTile(
                         leading: Icon(MdiIcons.car),
                         title: Text(snapshot.data[index]['nombre']),
                       ),
-                      onDismissed: (direction) {
-                        var nombre = snapshot.data[index]['nombre'];
-                        setState(() {
-                          provider
-                              .marcaBorrar(snapshot.data[index]['id'])
-                              .then((borradoExitoso) {
-                            if (!borradoExitoso) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  duration: Duration(seconds: 2),
-                                  content: Text('Ha ocurrido un problema :('),
+                      startActionPane: ActionPane(
+                        motion: ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              MaterialPageRoute route = MaterialPageRoute(
+                                builder: (context) => MarcasEditar(
+                                  id: snapshot.data[index]['id'],
+                                  nombre: snapshot.data[index]['nombre'],
                                 ),
                               );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  duration: Duration(seconds: 2),
-                                  content: Text('Marca $nombre borrada :)'),
-                                ),
-                              );
-                            }
-                          });
-                          snapshot.data.removeAt(index);
-                        });
-                        // if (direction == DismissDirection.startToEnd) {
-                        //   print('Hacia la derecha');
-                        // } else {
-                        //   print('Hacia la izquierda');
-                        // }
-                      },
+                              Navigator.push(context, route).then((value) {
+                                setState(() {});
+                              });
+                            },
+                            backgroundColor: Colors.purple,
+                            icon: MdiIcons.pen,
+                            label: 'Editar',
+                          )
+                        ],
+                      ),
+                      endActionPane: ActionPane(
+                        motion: ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              var nombre = snapshot.data[index]['nombre'];
+                              setState(() {
+                                provider
+                                    .marcaBorrar(snapshot.data[index]['id'])
+                                    .then((borradoExitoso) {
+                                  if (!borradoExitoso) {
+                                    showSnackbar('Ha ocurrido un problema');
+                                  } else {
+                                    showSnackbar('Marca $nombre borrada');
+                                    snapshot.data.removeAt(index);
+                                  }
+                                });
+                              });
+                            },
+                            backgroundColor: Colors.red,
+                            icon: MdiIcons.trashCan,
+                            label: 'Borrar',
+                          )
+                        ],
+                      ),
                     );
                   },
                 );
@@ -112,6 +105,15 @@ class _TabMarcasState extends State<TabMarcas> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void showSnackbar(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 2),
+        content: Text(mensaje),
       ),
     );
   }

@@ -37,4 +37,21 @@ class AutosProvider {
     var respuesta = await http.delete(uri);
     return respuesta.statusCode == 200;
   }
+
+  Future<LinkedHashMap<String, dynamic>> marcasEditar(
+      int id, String nombre) async {
+    var uri = Uri.parse('$apiURL/marcas/$id');
+    var respuesta = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(<String, String>{
+        'nombre': nombre,
+      }),
+    );
+
+    return json.decode(respuesta.body);
+  }
 }

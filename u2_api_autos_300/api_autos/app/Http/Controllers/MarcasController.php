@@ -54,6 +54,7 @@ class MarcasController extends Controller
     {
         $marca->nombre = $request->nombre;
         $marca->save();
+        return $marca;
     }
 
     /**

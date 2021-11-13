@@ -1,6 +1,8 @@
 import 'package:cliente_api/pages/marcas_agregar.dart';
+import 'package:cliente_api/pages/marcas_editar.dart';
 import 'package:cliente_api/provider/autos_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class TabMarcas extends StatefulWidget {
@@ -28,63 +30,60 @@ class _TabMarcasState extends State<TabMarcas> {
                 separatorBuilder: (_, __) => Divider(),
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
-                  return Dismissible(
-                    direction: DismissDirection.endToStart,
-                    key: ObjectKey(snapshot.data[index]),
+                  return Slidable(
+                    actionPane: SlidableDrawerActionPane(),
+                    actionExtentRatio: 0.25,
                     child: ListTile(
                       leading: Icon(MdiIcons.car),
                       title: Text(snapshot.data[index]['nombre']),
                     ),
-                    background: Container(color: Colors.purple),
-                    secondaryBackground: Container(
-                      padding: EdgeInsets.only(right: 5),
-                      alignment: Alignment.centerRight,
-                      color: Colors.red,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Borrar',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                    actions: [
+                      IconSlideAction(
+                        caption: 'Editar',
+                        color: Colors.purple,
+                        icon: MdiIcons.pen,
+                        onTap: () {
+                          MaterialPageRoute route = MaterialPageRoute(
+                            builder: (context) => MarcasEditar(
+                              id: snapshot.data[index]['id'],
+                              nombre: snapshot.data[index]['nombre'],
                             ),
-                          ),
-                          Icon(
-                            MdiIcons.trashCan,
-                            color: Colors.white,
-                          ),
-                        ],
+                          );
+                          Navigator.push(context, route).then((value) {
+                            setState(() {});
+                          });
+                        },
                       ),
-                    ),
-                    onDismissed: (direction) {
-                      var nombre = snapshot.data[index]['nombre'];
-                      setState(() {
-                        provider
-                            .marcaBorrar(snapshot.data[index]['id'])
-                            .then((borradoExitoso) {
-                          if (!borradoExitoso) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: Duration(seconds: 2),
-                              content: Text('Ha ocurrido un problema :('),
-                            ));
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: Duration(seconds: 2),
-                              content: Text(
-                                'Marca $nombre borrada',
-                              ),
-                            ));
-                          }
-                        });
-                        snapshot.data.removeAt(index);
-                      });
-                      // if (direction == DismissDirection.startToEnd) {
-                      //   print('Hacia derecha');
-                      // } else {
-                      //   print('Hacia izquierda');
-                      // }
-                    },
+                    ],
+                    secondaryActions: <Widget>[
+                      IconSlideAction(
+                        caption: 'Borrar',
+                        color: Colors.red,
+                        icon: Icons.delete,
+                        onTap: () {
+                          confirmDialog(context, snapshot.data[index]['nombre'])
+                              .then((confirma) {
+                            if (confirma) {
+                              var nombre = snapshot.data[index]['nombre'];
+                              setState(() {
+                                provider
+                                    .marcaBorrar(snapshot.data[index]['id'])
+                                    .then((borradoExitoso) {
+                                  if (!borradoExitoso) {
+                                    //error
+                                    _showSnackbar('Ha ocurrido un problema :(');
+                                  } else {
+                                    //borrado ok
+                                    _showSnackbar('Marca $nombre borrada');
+                                  }
+                                });
+                                snapshot.data.removeAt(index);
+                              });
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   );
                 },
               );
@@ -108,5 +107,37 @@ class _TabMarcasState extends State<TabMarcas> {
         ),
       ],
     );
+  }
+
+  void _showSnackbar(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: Duration(seconds: 2),
+      content: Text(mensaje),
+    ));
+  }
+
+  Future<dynamic> confirmDialog(BuildContext context, String marca) {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Confirmar borrado de marca'),
+            content: Text('¿Confirma borrar la marca $marca?'),
+            actions: [
+              TextButton(
+                child: Text('CANCELAR'),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red,
+                ),
+                child: Text('ACEPTAR'),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+          );
+        });
   }
 }
