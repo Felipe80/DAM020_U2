@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Auto;
+use App\Http\Requests\AutosRequest;
 use Illuminate\Http\Request;
 
 class AutosController extends Controller
@@ -14,7 +15,11 @@ class AutosController extends Controller
      */
     public function index()
     {
-        //
+        $autos = Auto::all();
+        foreach($autos as $auto){
+            $auto->load('marca');
+        }
+        return $autos;
     }
 
     /**
@@ -23,9 +28,15 @@ class AutosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AutosRequest $request)
     {
-        //
+        $auto = new Auto();
+        $auto->patente = $request->patente;
+        $auto->modelo = $request->modelo;
+        $auto->precio = $request->precio;
+        $auto->marca_id = $request->marca;
+        $auto->save();
+        return $auto;
     }
 
     /**
@@ -36,7 +47,8 @@ class AutosController extends Controller
      */
     public function show(Auto $auto)
     {
-        //
+       $auto->load('marca');
+       return $auto;
     }
 
     /**
@@ -48,7 +60,12 @@ class AutosController extends Controller
      */
     public function update(Request $request, Auto $auto)
     {
-        //
+        $auto->patente = $request->patente;
+        $auto->modelo = $request->modelo;
+        $auto->precio = $request->precio;
+        $auto->marca_id = $request->marca;
+        $auto->save();
+        return $auto;
     }
 
     /**
@@ -59,6 +76,6 @@ class AutosController extends Controller
      */
     public function destroy(Auto $auto)
     {
-        //
+        $auto->delete();
     }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MarcasController;
+use App\Http\Controllers\{MarcasController,AutosController};
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +26,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::patch('/marcas/{marca}',[MarcasController::class,'update']);
 
 Route::apiResource('/marcas',MarcasController::class);
+Route::apiResource('/autos',AutosController::class);

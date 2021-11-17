@@ -11,7 +11,7 @@ class Auto extends Model
     protected $table = 'autos';
     public $timestamps = false;
     protected $primaryKey = 'patente';
-    protected $incrementing = false;
+    public $incrementing = false;
     protected $keyType = 'string';
 
     public function marca(){
